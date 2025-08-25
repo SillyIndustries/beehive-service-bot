@@ -1,0 +1,27 @@
+{
+    "name": "beehive",
+    "license": "MIT",
+    "version": "0.0.1",
+    "type": "module",
+    "packageManager": "pnpm@9.11.0",
+    "scripts": {
+        "dev": "dotenv tsx watch ./src/main.ts",
+        "start": "tsx ./src/main.ts"
+    },
+    "pnpm": {
+        "onlyBuiltDependencies": [
+            "better-sqlite3"
+        ]
+    },
+    "dependencies": {
+        "@mtcute/dispatcher": "^0.25.8",
+        "@mtcute/node": "^0.25.8",
+        "dotenv-cli": "^10.0.0",
+        "tsx": "^4.20.5",
+        "zod": "^4.1.1"
+    },
+    "devDependencies": {
+        "@types/node": "^24.3.0",
+        "typescript": "^5.9.2"
+    }
+}

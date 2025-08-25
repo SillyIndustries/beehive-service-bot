@@ -1,0 +1,22 @@
+{
+    "compilerOptions": {
+        "outDir": "./dist",
+        "module": "NodeNext",
+        "moduleResolution": "NodeNext",
+        "target": "es2022",
+        "allowJs": true,
+        "sourceMap": true,
+        "inlineSources": true,
+        "esModuleInterop": true,
+        "allowSyntheticDefaultImports": true,
+        "strict": true,
+        "incremental": true,
+        "skipLibCheck": true,
+    },
+    "include": [
+        "./src"
+    ],
+    "exclude": [
+        "**/node_modules",
+    ]
+}
