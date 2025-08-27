@@ -5,21 +5,28 @@ import { registerCommands } from './commands.js';
 import { env } from '../env.js';
 
 import * as lnkrole from './lnkrole/main.js';
+import { hookMarkov } from './markov/main.js';
 
-await client.login(env.DISCORD_TOKEN);
-await registerCommands(client);
+export async function start() {
+  hookMarkov(client);
+  await client.login(env.DISCORD_TOKEN);
 
-await client.application?.editRoleConnectionMetadataRecords([
-  {
-    type: ApplicationRoleConnectionMetadataType.IntegerGreaterThanOrEqual,
-    name: 'Subscribers',
-    description: 'Telegram channel subscribers',
-    key: 'subs'
-  }
-]);
+  client.once('clientReady', async () =>
+    await registerCommands(client)
+  );
 
-await client.on('guildMemberRemove', async (member) => {
-  if (member.guild.id !== env.DISCORD_GUILD) return;
+  await client.application?.editRoleConnectionMetadataRecords([
+    {
+      type: ApplicationRoleConnectionMetadataType.IntegerGreaterThanOrEqual,
+      name: 'Subscribers',
+      description: 'Telegram channel subscribers',
+      key: 'subs'
+    }
+  ]);
 
-  await lnkrole.removeAllAssociationsForDiscord(member.id);
-});
+  client.on('guildMemberRemove', async (member) => {
+    if (member.guild.id !== env.DISCORD_GUILD) return;
+
+    await lnkrole.removeAllAssociationsForDiscord(member.id);
+  });
+}

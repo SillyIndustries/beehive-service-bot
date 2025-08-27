@@ -9,7 +9,6 @@ startDp.onNewMessage(filters.start, async (msg, state) => {
   await msg.replyMedia(InputMedia.sticker('CAACAgEAAxkBAAEPPOVorKc26l1srwvigic6aaAtvWKwbgACBAUAArqHuUVC7kmH47YQ5zYE'));
 
   const match = msg.text.slice('/start '.length);
-  console.log(match);
 
   const hKey = VERIFICATION_HASH_KEY_PREFIX + match;
   const exists = await redis.exists(hKey);

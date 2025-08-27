@@ -1,4 +1,6 @@
-import { start, ustart } from './client.js';
+import { start as login, ustart } from './client.js';
 
-await start();
-await ustart();
+export async function start() {
+  await login();
+  await ustart();
+}

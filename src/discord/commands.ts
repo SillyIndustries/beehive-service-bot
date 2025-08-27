@@ -3,6 +3,8 @@ import { readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
+import { env } from '../env.js';
+
 interface Command {
   data: {
     name: string;
@@ -37,9 +39,11 @@ export async function registerCommands(client: Client) {
     throw new Error('Client application ID is not available. Ensure the client is logged in.');
 
   const commands = collection.map(command => command.data);
-  await client.rest.put(
-    Routes.applicationCommands(client.application.id),
+  const a = await client.rest.put(
+    Routes.applicationGuildCommands(client.application.id, env.DISCORD_GUILD),
     { body: commands }
   );
+
+  console.log(a);
   console.log(`Registered ${commands.length} commands.`);
 }

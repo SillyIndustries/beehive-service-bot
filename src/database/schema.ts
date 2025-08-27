@@ -14,3 +14,11 @@ export const discordTokens = pgTable('discord_tokens', {
   refresh_token: varchar('refresh_token').notNull(),
   expires_at: bigint({ mode: 'number' }).notNull()
 });
+
+export const markovData = pgTable('markov_data', {
+  state: varchar('state').notNull(),
+  next: varchar('next').notNull(),
+  count: bigint({ mode: 'number' }).notNull()
+}, (t) => [
+  primaryKey({ columns: [t.state, t.next] }),
+]);

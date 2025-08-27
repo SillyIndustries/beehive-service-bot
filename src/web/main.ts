@@ -7,7 +7,7 @@ import { pathToFileURL } from 'node:url';
 
 import { env } from '../env.js';
 
-const fastify = Fastify({ logger: true });
+const fastify = Fastify();
 fastify.register(formBody);
 fastify.register(fastifyCookie, {
   secret: env.COOKIE_SECRET
@@ -27,6 +27,10 @@ const loading = (async () => {
   }
 })();
 
-await loading;
-await fastify.listen({ port: env.PORT });
-console.log('listening on :' + env.PORT);
+export async function start() {
+  await loading;
+  await fastify.listen({ port: env.PORT });
+  console.log('listening on :' + env.PORT);
+
+  return fastify;
+}
