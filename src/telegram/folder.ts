@@ -77,6 +77,12 @@ export async function initializeFolder() {
 }
 
 export async function updateExportLink() {
+  const folder = await utg.findFolder({ id: exportedFolderId });
+  if (!folder) {
+    console.error('folder not found');
+    return;
+  }
+
   const chatlist = {
     _: 'inputChatlistDialogFilter' as 'inputChatlistDialogFilter',
     filterId: exportedFolderId,
@@ -99,7 +105,7 @@ export async function updateExportLink() {
     chatlist,
     slug,
     title: '[auto] beehive',
-    peers: await Promise.all(links.chats.map(c => utg.resolvePeer(c.id))),
+    peers: folder.includePeers,
   });
 
   return invite.url;
