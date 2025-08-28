@@ -21,6 +21,10 @@ async function getNextWord(state: string) {
   return null;
 }
 
+function cleanStartFromMarkers(start: string[]) {
+  return start.filter(w => w !== START_MARKER && w !== END_MARKER);
+}
+
 export async function generateMessage(
   maxLength = MAX_WORDS,
   sentences = 1,
@@ -32,7 +36,7 @@ export async function generateMessage(
   for (let s = 0; s < sentences; s++) {
     const useStart = start && s === 0;
     let state = (useStart ? start : Array(order).fill(START_MARKER)).join(' ');
-    const result: string[] = [...(useStart ? start : [])];
+    const result: string[] = [...(useStart ? cleanStartFromMarkers(start) : [])];
 
     for (let i = 0; i < maxLength; i++) {
       const nextWord = await getNextWord(state);
