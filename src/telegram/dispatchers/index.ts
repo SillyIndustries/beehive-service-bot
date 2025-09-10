@@ -3,6 +3,7 @@ import { Dispatcher, MemoryStateStorage } from '@mtcute/dispatcher';
 
 import { startDp } from './start.js';
 import { cMUDp } from './guh.js';
+import { beehiveDp } from './beehivechan.js';
 
 import { verificationScene } from './scenes/verification.js';
 
@@ -15,6 +16,7 @@ export function hook(tg: TelegramClient) {
 
   dp.extend(startDp);
   dp.extend(cMUDp);
+  dp.extend(beehiveDp);
 
   return dp;
 }

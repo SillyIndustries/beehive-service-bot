@@ -34,7 +34,7 @@ function shouldTrainOnMessage(message: string) {
 const wait = (min: number, max: number) =>
   new Promise(r => setTimeout(r, min + Math.floor(Math.random() * (max - min))));
 
-const CHANCE_OF_USING_STARTING_POINT = 0.5;
+const CHANCE_OF_USING_STARTING_POINT = 0.55;
 const WAIT_PER_CHAR = 5;
 const MAX_PAD_MULTIPLIER = 1.3;
 async function doShitposting(message: Message, sanitized: string, shouldUseSanitized = true) {
