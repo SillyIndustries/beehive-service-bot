@@ -4,7 +4,7 @@ import { env } from '../../env.js';
 export const beehiveDp = Dispatcher.child();
 
 beehiveDp.onNewMessage(
-  filters.chatId(env.TELEGRAM_SELF_CHANNEL),
+  filters.and(filters.chatId(env.TELEGRAM_SELF_CHANNEL), filters.not(filters.service)),
 
   async (message) => {
     // just have a damn signature on
