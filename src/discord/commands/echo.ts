@@ -11,6 +11,6 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: ChatInputCommandInteraction) {
   const message = interaction.options.getString('message');
   if (!message)
-    return interaction.reply({ content: 'No message provided to echo.', ephemeral: true });
-  await interaction.reply(message);
+    return interaction.editReply({ content: 'No message provided to echo.' });
+  await interaction.editReply(message);
 }

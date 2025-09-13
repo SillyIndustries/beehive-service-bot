@@ -16,5 +16,5 @@ export const data = new SlashCommandBuilder()
 export async function execute(interaction: ChatInputCommandInteraction) {
   const maxWords = interaction.options.getInteger('max_words') ?? MAX_WORDS;
   const sentence = await generateMessage(Math.max(MIN, Math.min(Math.abs(maxWords), CLAMP)));
-  await interaction.reply({ content: sentence.join('\n'), allowedMentions: { parse: [] } });
+  await interaction.editReply({ content: sentence.join('\n'), allowedMentions: { parse: [] } });
 }

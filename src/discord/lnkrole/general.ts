@@ -10,7 +10,7 @@ export function getOAuthUrl() {
 
   const url = new URL('https://discord.com/api/oauth2/authorize');
   url.searchParams.set('client_id', client.application?.id);
-  url.searchParams.set('redirect_uri', env.DISCORD_REDIRECT_URI); // hardcoded :trol
+  url.searchParams.set('redirect_uri', env.DISCORD_REDIRECT_URI);
   url.searchParams.set('response_type', 'code');
   url.searchParams.set('state', state);
   url.searchParams.set('scope', 'role_connections.write identify');

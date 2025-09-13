@@ -1,11 +1,13 @@
 import { eq, and, sql } from 'drizzle-orm';
+
 import { db } from '../../database/index.js';
 import { discordTokens, linkedUsers } from '../../database/schema.js';
+
+import { tg, utg } from '../../telegram/client.js';
+import { initializeFolder, updateExportLink, tryToResolveChanPeer } from '../../telegram/folder.js';
+
 import { Tokens } from './types.js';
 import { revokeOAuth2 } from './general.js';
-import { tg, utg } from '../../telegram/client.js';
-import { initializeFolder, updateExportLink } from '../../telegram/folder.js';
-import { tryToResolveChanPeer } from '../../telegram/folder.js';
 
 export async function storeDiscordTokens(userId: string, tokens: Tokens) {
   return await db.insert(discordTokens)

@@ -1,13 +1,14 @@
-import { Client } from 'discord.js';
+import { Client, GatewayIntentBits } from 'discord.js';
 import { collection } from './commands.js';
 
 export const client = new Client({
   intents: [
-    'Guilds',
-    'GuildMessages',
-    'MessageContent',
-    'GuildMessageReactions',
-    'GuildMembers',
+    GatewayIntentBits.Guilds,
+    GatewayIntentBits.GuildMessages,
+    GatewayIntentBits.MessageContent,
+    GatewayIntentBits.GuildMessageReactions,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildMembers,
   ],
 });
 
@@ -24,10 +25,13 @@ client.on('interactionCreate', async interaction => {
     return;
   }
 
+  if (!interaction.deferred)
+    await interaction.deferReply({ ephemeral: true });
+
   try {
     await command.execute(interaction);
   } catch (error) {
     console.error(`Error executing command ${interaction.commandName}:`, error);
-    await interaction.reply({ content: 'There was an error while executing this command.', ephemeral: true });
+    await interaction.editReply({ content: 'There was an error while executing this command.' });
   }
 });
