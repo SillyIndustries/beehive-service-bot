@@ -22,6 +22,8 @@ export const VERIFICATION_TTL = 5 * 60;
 export const TEMP_CHAN_KEY_PREFIX = 'tchan:';
 export const TEMP_CHAN_EXPIRY = 30;
 
+export const PUNISH_KEY_PREFIX = 'punish:';
+
 const events = new Map<string, ((message: string, channel: string) => void)[]>();
 export function subscribeForExpiryEvents(pattern: string, listener: (message: string, channel: string) => void) {
   if (!events.has(pattern))

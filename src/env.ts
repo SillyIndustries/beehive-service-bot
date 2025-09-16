@@ -10,6 +10,7 @@ const r = z.object({
   DISCORD_TOKEN: z.string(),
   DISCORD_CLIENT_SECRET: z.string(),
   DISCORD_GUILD: z.string(),
+  DISCORD_WORKER_ROLE: z.string(),
   DATABASE_URL: z.url(),
   REDIS_URL: z.url(),
   PORT: z.coerce.number().default(6498),

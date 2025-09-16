@@ -46,7 +46,9 @@ export class TempChanContainer extends Map<string, TempChanInstance> {
             await user.send('your temporary voice channel has expired and been deleted');
         } catch (err) {}
 
-        await instance.channel.delete('temporary voice channel expired/deleted');
+        try {
+          await instance.channel.delete('temporary voice channel expired/deleted');
+        } catch (err) {}
 
         // remove from redis
         redis.sRem(TEMP_CHAN_KEY_PREFIX, key);
@@ -76,15 +78,30 @@ export class TempChanContainer extends Map<string, TempChanInstance> {
     const set = await redis.sMembers(TEMP_CHAN_KEY_PREFIX);
     for (const key of set) {
       const data = await redis.hGetAll(TEMP_CHAN_KEY_PREFIX + key);
-      const instance = await TempChanInstance.initiateFromCached({
-        name: data.name,
-        isPrivate: data.isPrivate === 'true',
-        initiatorId: data.initiatorId,
-        channelId: data.channelId,
-      });
+      try {
+        const instance = await TempChanInstance.initiateFromCached({
+          name: data.name,
+          isPrivate: data.isPrivate === 'true',
+          initiatorId: data.initiatorId,
+          channelId: data.channelId,
+        });
 
-      this.set(key, instance);
-      this.mapByChannel.set(instance.channel.id, instance);
+        this.set(key, instance);
+        this.mapByChannel.set(instance.channel.id, instance);
+        instance.on('delete', () => this.delete(key));
+      } catch (err) {
+        console.error('error recovering temporary channel from cache', err);
+
+        try {
+          const chan = await client.channels.fetch(data.channelId);
+          if (chan?.isVoiceBased())
+            await chan.delete('cleaning up orphaned temporary channel');
+        } catch (err) {}
+
+        redis.sRem(TEMP_CHAN_KEY_PREFIX, key);
+        redis.del(TEMP_CHAN_KEY_PREFIX + key);
+        redis.del(TEMP_CHAN_KEY_PREFIX + key + ':allowed');
+      }
     }
 
     console.log(`Recovered ${this.size} temporary channels from Redis.`);

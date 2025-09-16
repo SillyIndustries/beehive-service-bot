@@ -1,4 +1,4 @@
-import { AuditLogEvent, ChannelType, VoiceChannel, VoiceState } from 'discord.js';
+import { ChannelType, Collection, VoiceChannel, VoiceState } from 'discord.js';
 import EventEmitter from 'events';
 
 import { env } from '../../env.js';
@@ -9,7 +9,6 @@ import {
   TEMP_CHAN_EXPIRY,
   TEMP_CHAN_KEY_PREFIX
 } from '../../redis/index.js';
-import { wait } from '../../utils/wait.js';
 
 export interface RedisTempChanCacheValue {
   name: string;
@@ -43,7 +42,11 @@ export default class TempChanInstance extends EventEmitter {
     const allowed = await redis.sMembers(TEMP_CHAN_KEY_PREFIX + this.initiatorId + ':allowed');
     this.allowedUsers = allowed || [];
 
-    if (this.channel.members.size === 0) {
+    if (!this.channel)
+      return this.emit('delete');
+
+    if (!this.channel.members?.size) {
+      console.log('setting grace period on recovery');
       await redis.expire(TEMP_CHAN_KEY_PREFIX + this.initiatorId, TEMP_CHAN_EXPIRY);
       this.grace = true;
     }
@@ -59,24 +62,10 @@ export default class TempChanInstance extends EventEmitter {
         await redis.persist(TEMP_CHAN_KEY_PREFIX + this.initiatorId);
       }
 
-      if (this.isPrivate) {
-        await wait(2500); // wait for audit log to populate (probably will never work)
-        const audit = await this.channel.guild.fetchAuditLogs({
-          limit: 1,
-          type: AuditLogEvent.MemberMove
-        });
-
-        const entry = audit.entries.first();
-        const memberId = newState.member?.id || '';
-
-        if (entry && entry.target?.id === memberId) {
-          const executor = entry.executor;
-          if (executor && executor.id !== memberId && executor.id === this.initiatorId)
-            await this.allowUser(memberId);
-        } else if (memberId !== this.initiatorId && !this.allowedUsers.includes(memberId)) {
-          newState.setChannel(oldState.channel, 'temporary voice channel is private');
-          this.channel.send('<@' + memberId + '> tried to join private temporary channel without permission');
-        }
+      const memberId = newState.member?.id || '';
+      if (this.isPrivate && memberId !== this.initiatorId && !this.allowedUsers.includes(memberId)) {
+        newState.setChannel(oldState.channel?.id === newState.channel?.id ? null : oldState.channel, 'temporary voice channel is private');
+        await this.channel.send('<@' + memberId + '> tried to join private temporary channel without permission');
       }
     }
 
@@ -115,9 +104,9 @@ export default class TempChanInstance extends EventEmitter {
 
     const instance = new TempChanInstance(name, isPrivate, initiatorId, channel);
     await redis.hSet(TEMP_CHAN_KEY_PREFIX + initiatorId, {
-      name,
-      isPrivate: isPrivate.toString(),
-      initiatorId,
+      name: name,
+      isPrivate: String(isPrivate),
+      initiatorId: initiatorId,
       channelId: channel.id,
     });
 
@@ -133,8 +122,8 @@ export default class TempChanInstance extends EventEmitter {
     if (!guild) throw new Error('Guild not found');
 
     const channel = await guild.channels.fetch(data.channelId) as VoiceChannel;
-    if (!channel) throw new Error('Channel not found');
+    if (!channel || channel.id !== data.channelId || channel instanceof Collection) throw new Error('Channel not found');
 
-    return new TempChanInstance(data.name, data.isPrivate, data.initiatorId, channel);
+    return new TempChanInstance(data.name, data.isPrivate, data.initiatorId, channel, true);
   }
 }
